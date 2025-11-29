@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Simple gradlew script for the Nametag Manager mod
+echo "This is a placeholder gradlew script."
+echo "To build the mod properly, please install Gradle on your system."
+echo "Then run: gradle build"
+echo ""
+echo "For the actual Fabric mod build, you would run:"
+echo "cd /workspace/nametag-manager && gradle build"
