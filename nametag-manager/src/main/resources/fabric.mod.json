@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "nametagmanager",
+  "version": "${version}",
+  "name": "Nametag Manager",
+  "description": "A mod that allows management of player nametags (visually, locally) for Minecraft 1.20+",
+  "authors": [
+    "Your Name"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "MIT",
+  "icon": "assets/nametagmanager/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "com.example.nametagmanager.NametagManager"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.0",
+    "fabric-api": "*",
+    "minecraft": "~1.20",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
