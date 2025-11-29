@@ -1,0 +1,7 @@
+# Minecraft bot dependencies
+# Note: You'll need to install a Minecraft client library like:
+# - mcproto
+# - mineflayer (Node.js, but can be called from Python)
+# - or similar libraries
+
+requests>=2.25.1
