@@ -1,0 +1,8 @@
+# Sample proxy configurations
+# Format 1: socks5://[user:pass@]host:port
+# Format 2: host:port (assumes socks5)
+
+# Example proxies (replace with your own):
+127.0.0.1:1080
+socks5://proxy.example.com:1080
+socks5://user:pass@proxy.example.com:1080
