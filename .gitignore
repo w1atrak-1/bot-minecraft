@@ -1,1 +1,60 @@
-Nothing should be ignored based on the provided file changes. The only added file is `roblox_executor.py`, which appears to be a source code file that should be tracked in version control.
+```
+# Build artifacts and binaries
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.runtimeconfig.json
+*.deps.json
+*.AssemblyAttributes.cs
+*.AssemblyInfo.cs
+*.AssemblyInfoInputs.cache
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.GlobalUsings.g.cs
+*.assets.cache
+*.FileListAbsolute.txt
+*.genruntimeconfig.cache
+apphost
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.egg-info/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Coverage
+coverage/
+htmlcov/
+*.coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```
+packages-microsoft-prod.deb
