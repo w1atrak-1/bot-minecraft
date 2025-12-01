@@ -1,0 +1,10 @@
+python-telegram-bot
+pyautogui
+keyboard
+psutil
+pyperclip
+requests
+opencv-python
+Pillow
+cryptography
+pywin32
