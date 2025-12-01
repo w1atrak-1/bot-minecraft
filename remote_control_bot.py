@@ -17,6 +17,7 @@ import sqlite3
 import base64
 import cv2
 import numpy as np
+import uuid
 from datetime import datetime
 from urllib.request import urlopen
 from urllib.parse import urlparse

