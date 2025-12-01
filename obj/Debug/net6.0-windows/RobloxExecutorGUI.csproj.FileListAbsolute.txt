@@ -1,0 +1,15 @@
+/workspace/bin/Debug/net6.0-windows/RobloxExecutorGUI
+/workspace/bin/Debug/net6.0-windows/RobloxExecutorGUI.deps.json
+/workspace/bin/Debug/net6.0-windows/RobloxExecutorGUI.runtimeconfig.json
+/workspace/bin/Debug/net6.0-windows/RobloxExecutorGUI.dll
+/workspace/bin/Debug/net6.0-windows/RobloxExecutorGUI.pdb
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.csproj.AssemblyReference.cache
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.GeneratedMSBuildEditorConfig.editorconfig
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.AssemblyInfoInputs.cache
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.AssemblyInfo.cs
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.csproj.CoreCompileInputs.cache
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.dll
+/workspace/obj/Debug/net6.0-windows/refint/RobloxExecutorGUI.dll
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.pdb
+/workspace/obj/Debug/net6.0-windows/RobloxExecutorGUI.genruntimeconfig.cache
+/workspace/obj/Debug/net6.0-windows/ref/RobloxExecutorGUI.dll
