@@ -1,0 +1,8 @@
+# LiveStream Plugin - Konfiguracja
+
+# Czy powiadamiać cały serwer gdy ktoś rozpocznie transmisję?
+broadcast-stream-start: false
+
+# Domyślna konfiguracja
+# Upewnij się że gracze z rangą Twórca mają permisję: livestream.creator
+# Upewnij się że gracze z rangą Media mają permisję: livestream.media
