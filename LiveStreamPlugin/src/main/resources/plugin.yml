@@ -1,0 +1,19 @@
+plugins:
+  LiveStreamPlugin:
+    version: '1.0'
+    main: com.livestream.LiveStreamPlugin
+    api-version: '1.21'
+    name: LiveStreamPlugin
+    description: Plugin do wyswietlania transmisji na zywo
+    author: Author
+    commands:
+      live:
+        description: Wyswietla wszystkich graczy prowadzacych transmisje na zywo
+        usage: /live
+    permissions:
+      livestream.use:
+        description: Allows player to use /live command
+        default: true
+      livestream.set:
+        description: Allows player to set their stream
+        default: op
